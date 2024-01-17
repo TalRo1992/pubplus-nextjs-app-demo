@@ -8,17 +8,54 @@ interface ImageItem {
     pre_image_text: string;
     type: string;
   }
-  
-  export interface Site {
+  interface SiteLogo {
     id: number;
     attributes: {
+      name: string;
+      alternativeText: string;
+      caption: string;
+      width: number;
+      formats: string;
+      hash: string;
+      ext: string;
+      mime: string;
+      size: number;
+      url: string;
+      previewUrl: string;
+      provider: string;
+      provider_metadata: string;
+      createdAt: string;
+      updatedAt: string;
+    };
+  }
+
+  interface Category {
+    id: number;
+    attributes: {
+      category: string;
       createdAt: string;
       updatedAt: string;
       publishedAt: string;
-      domain: string;
-      mainColor: string
     };
   }
+
+  export interface Site {
+    id: number;
+    attributes: {
+      createdAt?: string;
+      updatedAt?: string;
+      publishedAt?: string;
+      domain: string;
+      mainColor: string;
+      logo: {
+        data: SiteLogo;
+      };
+      categories: {
+        data: Category[];
+      };
+    };
+  };
+
 
   export interface Author {
     id: number;

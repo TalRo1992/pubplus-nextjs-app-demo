@@ -1,22 +1,32 @@
-import { Article } from "@/app/types/article";
+import { Site } from "@/app/types/article";
 import Links from "./links/links"
 import Styles from './navbar.module.css'
-import { getArticleData } from "@/app/api/articles";
+import { getSiteMenuCategories } from "@/app/api/articles";
 import { headers } from "next/headers";
 const Navbar = async () => {
-    const headersList = headers();
-    const url = headersList.get('x-url');
-    const articleName = url?.split('/')[3];
-    const articleData:Article = await getArticleData(articleName) as Article;
-    const domain = headersList.get('host');
 
-    const articleAttributes = articleData?.attributes;
-    const mainColor = articleAttributes?.primary_site?.data.attributes?.mainColor;
-    console.log(articleData, 'from navbar')
+    const headersList = headers();    
+    const domain:string | null = headersList.get('host');
+
+    const currentSite: Site = await getSiteMenuCategories(domain) as Site;
+    const currentSiteAttributes = currentSite?.attributes;
+
+    const mainColor = currentSiteAttributes?.mainColor;
+    const siteLogo = currentSiteAttributes.logo?.data?.attributes.url;
+    const logoUrl = siteLogo && `${process.env.NEXT_PUBLIC_STRAPI_API_URL}${siteLogo}`; // TODO: SHOULD BE FROM s3
+
+    const categories = currentSiteAttributes.categories ? currentSiteAttributes.categories?.data.map((category: any) => {
+        return {
+            title: category?.attributes?.category,
+            path: `/category/${category?.attributes?.slug}`,
+            slug: category?.attributes?.slug,
+        }
+    }) : [];
+
     return (
         <div className={Styles.container} style={{background: mainColor}}>
-            <img src="https://d1k5f0ama23ui4.cloudfront.net/wp-content/uploads/2020/02/25095233/logo_footer1.png" width={150} className={Styles.logo}/>
-            <Links/>
+            {logoUrl && <a href="/"><img src={logoUrl} width={150} className={Styles.logo}/></a>}
+            <Links categories={categories}/>
         </div>
     )
 }
